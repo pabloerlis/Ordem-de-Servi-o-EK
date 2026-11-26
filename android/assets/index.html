@@ -59,12 +59,17 @@
     padding: 10px 12px; background: #f1f5f9;
     border-bottom: 1px solid #e2e8f0;
   }
-  .search-wrap input {
+  .search-wrap input[type=search] {
     width: 100%; padding: 10px 12px; border-radius: 8px;
     border: 1px solid #cbd5e1; background: #fff; font-size: 15px;
     outline: none; transition: border-color .15s, box-shadow .15s;
   }
-  .search-wrap input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.15); }
+  .search-wrap input[type=search]:focus { border-color: #94a3b8; box-shadow: none; outline: none; }
+  .selected-filter { display: inline-flex; align-items: center; gap: 7px; min-height: 32px; margin-top: 3px; padding: 2px 4px; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+  .selected-filter input[type=checkbox] { box-sizing: border-box; width: 17px; height: 17px; flex: 0 0 17px; margin: 0; padding: 0; accent-color: #2563eb; box-shadow: none; border: 0; outline: none; }
+  .selected-filter input[type=checkbox]:focus { outline: none; box-shadow: none; }
+  .selected-filter input[type=checkbox]:focus-visible { outline: 1px solid #64748b; outline-offset: 2px; }
+  .selected-filter:has(input:checked) { color: #1d4ed8; }
 
   /* ===== Checklist toolbar (count + clear-all) ===== */
   .checklist-toolbar {
@@ -308,7 +313,7 @@
 <!-- ===== Search (only on checklist view) ===== -->
 <div class="search-wrap" id="searchWrap">
   <input type="search" id="searchInput" placeholder="Buscar problema, ação ou categoria..." autocomplete="off">
-  <label style="display:flex;gap:8px;align-items:center;font-size:13px;margin-top:8px"><input id="selectedOnly" type="checkbox"> Somente marcados</label><div class="checklist-toolbar" id="checklistToolbar" style="display:none;"></div>
+  <label class="selected-filter" for="selectedOnly"><input id="selectedOnly" type="checkbox"><span>Somente marcados</span></label><div class="checklist-toolbar" id="checklistToolbar" style="display:none;"></div>
 </div>
 
 <!-- ===== Main container ===== -->
@@ -381,6 +386,14 @@
   function loadState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw === null) {
+        const initial = readInitialCatalog();
+        if (initial) {
+          state = {categories:initial.data.categories,footer:initial.data.footer || '',checked:[],history:[],draft:safeDraft(null)};
+          saveState();
+        }
+        return;
+      }
       if (raw) {
         const parsed = JSON.parse(raw);
         if (parsed && Array.isArray(parsed.categories)) {
@@ -480,8 +493,9 @@
       container.innerHTML = `
         <div class="empty-state">
           <strong>Nenhum resultado</strong>
-          Nenhum problema encontrado para "${escapeHTML(searchQuery)}".
+          ${selectedOnly && !q ? 'Nenhum item marcado.' : 'Nenhum problema encontrado para "'+escapeHTML(searchQuery)+'".'}
         </div>`;
+      updateChecklistToolbar();
       return;
     }
 
@@ -541,6 +555,11 @@
         <button class="btn btn-secondary btn-sm" id="btnBackFromConfig">← Voltar</button>
       </div>
 
+      <div class="config-section">
+        <h3>Base de dados inicial</h3>
+        <p style="font-size:13px;color:#64748b;margin-bottom:10px;">Baixe uma cópia do catálogo original incluído nesta versão. O download não altera seus dados atuais e funciona offline.</p>
+        <div class="actions-row"><button class="btn btn-primary btn-sm" id="btnDownloadInitial">Baixar base inicial (.json)</button></div>
+      </div>
       <div class="config-section">
         <h3>Categorias & Pares</h3>
         <div id="cfgCatsList"></div>
@@ -810,6 +829,22 @@
   }
 
   // ============ Export / Import ============
+  function readInitialCatalog() {
+    try {
+      if (!window.Android || typeof Android.getInitialCatalog !== 'function') return null;
+      const raw = Android.getInitialCatalog();
+      const initial = JSON.parse(raw);
+      if (initial.header !== EXPORT_HEADER || !initial.data || !validCatalog(initial.data)) return null;
+      return initial;
+    } catch (e) { console.warn('Catálogo inicial indisponível',e); return null; }
+  }
+
+  function downloadInitialCatalog() {
+    const initial = readInitialCatalog();
+    if (!initial) { showToast('Base inicial indisponível','error'); return; }
+    Android.saveText('checklist-os-inicial.json', JSON.stringify(initial,null,2));
+  }
+
   function exportData() {
     const payload = {
       header: EXPORT_HEADER,
@@ -1150,7 +1185,7 @@
       // Toggle acordeão de categoria: clicar no cabeçalho abre/fecha,
       // MAS clicar num botão de controle (data-action) não deve disparar o toggle.
       const cfgHead = e.target.closest('[data-toggle-cfg-cat]');
-      const actionTarget = e.target.closest('[data-action], #btnAddCat, #btnBackFromConfig, #btnSaveFooter, #btnExport, #btnImport');
+      const actionTarget = e.target.closest('[data-action], #btnAddCat, #btnBackFromConfig, #btnSaveFooter, #btnExport, #btnImport, #btnDownloadInitial');
       if (cfgHead && !actionTarget) {
         toggleCfgAccordion(cfgHead.dataset.toggleCfgCat);
         return;
@@ -1165,6 +1200,7 @@
         showToast('Rodapé salvo', 'success');
         return;
       }
+      if (actionTarget.id === 'btnDownloadInitial') { downloadInitialCatalog(); return; }
       if (actionTarget.id === 'btnExport') { exportData(); return; }
       if (actionTarget.id === 'btnImport') { document.getElementById('importFile').click(); return; }
 

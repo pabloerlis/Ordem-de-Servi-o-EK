@@ -1,6 +1,8 @@
 # Checklist OS EK
-Android v1.0.0 — experimental. HTML original preservado em web/.
+Android v1.1.0 — experimental. HTML original preservado em web/.
 ## Funcionalidades
+- Base inicial versionada em `data/checklist-os-inicial.json`, incluída no APK no build, carregada apenas no primeiro uso. Configurações > Base de dados inicial permite baixar uma cópia offline sem modificar os registros atuais.
+- Filtro Somente marcados compacto, sem halo de seleção por toque.
 - Catálogo e formato original dos relatórios.
 - Busca por problema, ação e categoria, sem acentos; filtro de marcados.
 - Número da OS, equipamento e observações opcionais; histórico local com relatórios independentes.

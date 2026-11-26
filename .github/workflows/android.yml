@@ -22,5 +22,5 @@ jobs:
       - run: bash android/build.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: Checklist-OS-EK-v1.0.0
+          name: Checklist-OS-EK-v1.1.0
           path: build/out/*.apk

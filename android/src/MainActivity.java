@@ -37,6 +37,13 @@ public class MainActivity extends Activity {
     web.loadUrl(HOME);
   }
   final class Bridge {
+    @JavascriptInterface public String getInitialCatalog(){
+      try(InputStream in=getAssets().open("checklist-os-inicial.json"); ByteArrayOutputStream out=new ByteArrayOutputStream()){
+        byte[] buffer=new byte[8192]; int n;
+        while((n=in.read(buffer))!=-1)out.write(buffer,0,n);
+        return new String(out.toByteArray(),StandardCharsets.UTF_8);
+      }catch(IOException e){return "";}
+    }
     @JavascriptInterface public void copyText(String text){runOnUiThread(()->{
       ((android.content.ClipboardManager)getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("Relatório OS",text));toast("Texto copiado");
     });}
@@ -45,7 +52,7 @@ public class MainActivity extends Activity {
     });}
     @JavascriptInterface public void saveText(String name,String text){runOnUiThread(()->{
       if(pendingText!=null){toast("Conclua a exportação anterior");return;}pendingText=text;
-      Intent i=new Intent(Intent.ACTION_CREATE_DOCUMENT);i.addCategory(Intent.CATEGORY_OPENABLE);i.setType("text/plain");i.putExtra(Intent.EXTRA_TITLE,name);
+      Intent i=new Intent(Intent.ACTION_CREATE_DOCUMENT);i.addCategory(Intent.CATEGORY_OPENABLE);i.setType(name.endsWith(".json")?"application/json":"text/plain");i.putExtra(Intent.EXTRA_TITLE,name);
       try{startActivityForResult(i,11);}catch(Exception e){pendingText=null;toast("Não foi possível abrir o seletor");}
     });}
   }
