@@ -1,0 +1,412 @@
+{
+  "header": "CHECKLIST-OS-DATA-V1",
+  "exportedAt": "2026-07-02T15:28:02.000Z",
+  "data": {
+    "categories": [
+      {
+        "id": "568faf4f3a6d43",
+        "name": "GENERALIDADES",
+        "pairs": [
+          {
+            "id": "4f2f9d5bae264b",
+            "problem": "EQUIPAMENTO INOPERANTE",
+            "action": "REVISÃO GERAL"
+          },
+          {
+            "id": "afc4c113d44f47",
+            "problem": "NECESSIDADE DE MANUTENÇÃO PREVENTIVA",
+            "action": "REVISÃO PREVENTIVA DE CIRCUITOS ELETRÔNICOS"
+          }
+        ]
+      },
+      {
+        "id": "6129f224579441",
+        "name": "EQUIPAMENTO SEM DEFEITO",
+        "pairs": [
+          {
+            "id": "e7fd926a354e41",
+            "problem": "DEFEITO(S) NÃO IDENTIFICADO(S)",
+            "action": "EQUIPAMENTO(S) NÃO APRESENTOU(TARAM) DEFEITO(S) DURANTE TESTE(S) EM JIGA(S) DE TESTE(S) / SIMULADOR(ES)"
+          }
+        ]
+      },
+      {
+        "id": "a5ae175bff9e49",
+        "name": "EQUIPAMENTO SEM CONSERTO",
+        "pairs": [
+          {
+            "id": "b6dbb1877cea4c",
+            "problem": "CONSERTO INVIÁVEL COMERCIALMENTE / IMPRATICÁVEL TECNICAMENTE",
+            "action": "SUBSTITUIÇÃO POR UM EQUIPAMENTO NOVO / OU SUBSTITUTO 100% COMPATÍVEL"
+          }
+        ]
+      },
+      {
+        "id": "46bf295e6dd84f",
+        "name": "PCB",
+        "pairs": [
+          {
+            "id": "53a5275a96b248",
+            "problem": "COMPONENTE(S) ELETRÔNICO(S) AVARIADO(S)",
+            "action": "RECONDICIONAMENTO ELETROELETRÔNICO / SUBSTITUIÇÃO DE COMPONENTES ELETRÔNICOS AVARIADOS"
+          },
+          {
+            "id": "e565bf3d97004b",
+            "problem": "CARBONIZAÇÃO PRESENTE EM COMPONENTE(S) ELETRÔNICO(S)",
+            "action": "SUBSTITUIÇÃO DE COMPONENTE(S) ELETRÔNICO(S) CARBONIZADO(S)"
+          },
+          {
+            "id": "3c47eadc781d40",
+            "problem": "CARBONIZAÇÃO PRESENTE NA PCI (PLACA DE CIRCUITO IMPRESSO)",
+            "action": "RECONSTRUÇÃO DE PARTE DA PCI (PLACA DE CIRCUITO IMPRESSO)"
+          },
+          {
+            "id": "39d9d1d161d549",
+            "problem": "AUSÊNCIA(S) DE COMPONENTE(S)",
+            "action": "INSTALAÇÃO / REPOSIÇÃO DE COMPONENTE(S) AUSENTE(S)"
+          },
+          {
+            "id": "951068f2f9af4f",
+            "problem": "SINAIS DE OXIDAÇÕES EM COMPONENTES E TRILHAS ELETRÔNICAS",
+            "action": "RECONSTRUÇÃO DE TRILHA(S) ELETRÔNICAS"
+          },
+          {
+            "id": "a54b849102e744",
+            "problem": "SOLDA(S) INADEQUADA(S) EM COMPONENTE(S) ELETRÔNICO(S)",
+            "action": "RESSOLDA(S) EM COMPONENTE(S) ELETRÔNICO(S)"
+          },
+          {
+            "id": "8800fc4de39640",
+            "problem": "FALHA EM PONTOS DE ISOLAÇÃO(ÕES) ELÉTRICA(S)",
+            "action": "ISOLAÇÃO(ÕES) DE PONTO(S) PROPÍCIO(S) A CURTO-CIRCUITO(S)"
+          }
+        ]
+      },
+      {
+        "id": "cdbda8bfb9da44",
+        "name": "ALIMENTAÇÕES",
+        "pairs": [
+          {
+            "id": "95716ccfbc264d",
+            "problem": "DESGASTE(S) EM CIRCUITO(S) DE FONTE(S) / ALIMENTAÇÃO(ÕES) INTERNA(S)",
+            "action": "REVISÃO(ÕES) PREVENTIVA(S) DO(S) CIRCUITO(S) FONTE(S) / ALIMENTAÇÃO(ÕES) INTERNA(S)"
+          },
+          {
+            "id": "87b844dbe04c46",
+            "problem": "AVARIA(S) CIRCUITO(S) FONTE(S) / ALIMENTAÇÃO(ÕES) INTERNA(S)",
+            "action": "REMOÇÃO DE AVARIA(S) / CURTO-CIRCUITO(S) NO BLOCO DE CIRCUITO(S) / FONTE(S) DE ALIMENTAÇÃO(ÕES) INTERNA(S)"
+          },
+          {
+            "id": "efff3a924a964b",
+            "problem": "CURTO-CIRCUITO LINHA +5VDC",
+            "action": "REMOÇÃO DE CURTO-CIRCUITO NA LINHA +5VDC"
+          },
+          {
+            "id": "0dcba7dd26e349",
+            "problem": "CURTO-CIRCUITO LINHA +12VDC",
+            "action": "REMOÇÃO DE CURTO-CIRCUITO NA LINHA +12VDC"
+          },
+          {
+            "id": "4f6476c7290e4b",
+            "problem": "CURTO-CIRCUITO LINHA +24VDC",
+            "action": "REMOÇÃO DE CURTO-CIRCUITO NA LINHA +24VDC"
+          },
+          {
+            "id": "4c4dbd42783142",
+            "problem": "CURTO-CIRCUITO LINHA +/-12VDC",
+            "action": "REMOÇÃO DE CURTO-CIRCUITO NA LINHA +/-12VDC"
+          },
+          {
+            "id": "5c95bcbfe6594a",
+            "problem": "CURTO-CIRCUITO LINHA +/-15VDC",
+            "action": "REMOÇÃO DE CURTO-CIRCUITO NA LINHA +/-15VDC"
+          }
+        ]
+      },
+      {
+        "id": "01a1b5323f5e4a",
+        "name": "CPU / PROCESSAMENTO",
+        "pairs": [
+          {
+            "id": "88d75afddc664c",
+            "problem": "FALHA GERAL DE PROCESSAMENTO",
+            "action": "RECONDICIONAMENTO NO BLOCO DE PROCESSAMENTO"
+          },
+          {
+            "id": "b5844ea2db1f47",
+            "problem": "FALHA NO SISTEMA DE MANUTENÇÃO DE CONFIGURAÇÕES DO SISTEMA",
+            "action": "RECONDICIONAMENTO NO BLOCO DE CIRCUITO DE MANUTENÇÃO DE DADOS / CONFIGURAÇÕES DE SISTEMA"
+          },
+          {
+            "id": "f9c8dce591ae40",
+            "problem": "FALHA NO ARMAZENAMENTO DE PARÂMETROS / CONFIGURAÇÕES DE PROCESSO",
+            "action": "RECONDICIONAMENTO NO BLOCO DE CIRCUITO DE ARMAZENAMENTO DE PARÂMETROS / CONFIGURAÇÕES DE PROCESSO"
+          }
+        ]
+      },
+      {
+        "id": "ecff79daf7a145",
+        "name": "COMUNICAÇÃO",
+        "pairs": [
+          {
+            "id": "5264a7152a3143",
+            "problem": "FALHA DE COMUNICAÇÃO (CLP)",
+            "action": "RECONDICIONAMENTO NO CIRCUITO DE COMUNICAÇÃO (CPU CLP)"
+          },
+          {
+            "id": "d2df20cef99348",
+            "problem": "FALHA DE COMUNICAÇÃO (IHM)",
+            "action": "RECONDICIONAMENTO NO CIRCUITO DE COMUNICAÇÃO (IHM)"
+          }
+        ]
+      },
+      {
+        "id": "d1600b99c55a49",
+        "name": "IMAGEM",
+        "pairs": [
+          {
+            "id": "1cc575bcd7184f",
+            "problem": "FALHA NO PROCESSAMENTO / GERAÇÃO DE IMAGENS",
+            "action": "RECONDICIONAMENTO DE FALHA NO PROCESSAMENTO DE IMAGENS"
+          },
+          {
+            "id": "24da25fcdb324f",
+            "problem": "DISPLAY LCD COM DEFEITO PARCIAL DE IMAGEM",
+            "action": "RECONDICIONAMENTO DE DISPLAY LCD"
+          },
+          {
+            "id": "ce9d7fb2f0664c",
+            "problem": "DISPLAY LCD AVARIADO (SEM IMAGEM)",
+            "action": "SUBSTITUIÇÃO/INSTALAÇÃO DE DISPLAY LCD"
+          },
+          {
+            "id": "3b2f6eae17c641",
+            "problem": "AVARIA NO SISTEMA DE ILUMINAÇÃO BACK-LIGHT DO DISPLAY LCD",
+            "action": "RECONDICIONAMENTO DO SISTEMA DE ILUMINAÇÃO BACK-LIGHT DO DISPLAY LCD"
+          },
+          {
+            "id": "1b9c8d9ab02445",
+            "problem": "DISPLAY LCD DO EQUIPAMENTO SEF90 SEM PEÇA ORIGINAL DISPONÍVEL",
+            "action": "INSTALAÇÃO SOLUÇÃO EUREKA DISPLAY LCD SEF90"
+          }
+        ]
+      },
+      {
+        "id": "1e539f95db4845",
+        "name": "SOFTWARE / FIRMWARE",
+        "pairs": [
+          {
+            "id": "ae8e1979c6424a",
+            "problem": "FALHA NA INICIALIZAÇÃO DE SOFTWARE APLICAÇÃO DA MÁQUINA",
+            "action": "GRAVAÇÃO / INSTALAÇÃO DE SOFTWARE / ARQUIVOS DE CONFIGURAÇÃO"
+          },
+          {
+            "id": "c2021556ecec48",
+            "problem": "FALHA NA INICIALIZAÇÃO DE FIRMWARE",
+            "action": "GRAVAÇÃO / INSTALAÇÃO DE FIRMWARE"
+          },
+          {
+            "id": "ec173767ae744a",
+            "problem": "INCOMPATIBILIDADE DE SOFTWARE",
+            "action": "COMPATIBILIZAÇÃO DE SOFTWARE"
+          },
+          {
+            "id": "cdda7c0cf96642",
+            "problem": "AVARIA EM MEMÓRIA(S) DE PROGRAMA DE APLICAÇÃO DA MÁQUINA",
+            "action": "SUBSTITUIÇÃO DE MEMÓRIA DE PROGRAMA DE APLICAÇÃO DA MÁQUINA"
+          }
+        ]
+      },
+      {
+        "id": "63e55942e1fa4b",
+        "name": "TECLADO / BOTOEIRA",
+        "pairs": [
+          {
+            "id": "458bea1c1fc04e",
+            "problem": "AVARIA LEVE EM MEMBRANA TOUCHSCREEN (REPARÁVEL)",
+            "action": "REPARO EM MEMBRANA TOUCHSCREEN"
+          },
+          {
+            "id": "6a378c50f7e842",
+            "problem": "MEMBRANA TOUCHSCREEN AVARIADA (SEM REPARO POSSÍVEL)",
+            "action": "SUBSTITUIÇÃO MEMBRANA TOUCHSCREEN"
+          },
+          {
+            "id": "84ff792135ae44",
+            "problem": "FALHA NA VARREDURA / PROCESSAMENTO DE TECLADO(S)",
+            "action": "RECONDICIONAMENTO DE VARREDURA / PROCESSAMENTO DE TECLA(S)"
+          },
+          {
+            "id": "b1c9624e8b2946",
+            "problem": "MEMBRANA(S) DE TECLADO(S) AVARIADA(S)",
+            "action": "INSTALAÇÃO DE NOVA(S) MEMBRANA(S) DE TECLADO(S)"
+          },
+          {
+            "id": "1d0cf0145d944b",
+            "problem": "FALHA(S) / DESGASTE(S) EM ACIONAMENTO(S) DE TECLA(S) / FUNÇÃO(ÕES)",
+            "action": "RECONDICIONAMENTO DE TECLADO(S), COM A(S) SUBSTITUIÇÃO(ÕES) DE SISTEMA(S) DE ACIONAMENTO(S) DE FUNÇÃO(ÕES)"
+          },
+          {
+            "id": "7ddcb5ae212a44",
+            "problem": "FALHA NA VARREDURA / PROCESSAMENTO DE LED(S)",
+            "action": "RECONDICIONAMENTO DE VARREDURA / PROCESSAMENTO DE LED(S)"
+          },
+          {
+            "id": "524cd613b4a945",
+            "problem": "FALHA(S) EM SINALIZAÇÃO(ÕES) VISUAL(IS) DE FUNÇÕES DO TECLADO",
+            "action": "MANUTENÇÃO NO CIRCUITO RESPONSÁVEL POR SINALIZAÇÃO(ÕES) VISUAL(IS) DO TECLADO"
+          },
+          {
+            "id": "344f7c589ea247",
+            "problem": "FALHA(S) NO(S) ACIONAMENTO(S) DE BOTOEIRA(S) DE COMANDO(S) ELÉTRICO(S)",
+            "action": "SUBSTITUIÇÃO(ÕES) DE BOTÕES(EIRAS) DE COMANDO(S) ELÉTRICO(S)"
+          },
+          {
+            "id": "e42a2550f40346",
+            "problem": "FALHA GERAL NA VARREDURA / PROCESSAMENTO DE BOTOEIRA(S) / COMANDO(S) ELÉTRICO(S)",
+            "action": "RECONDICIONAMENTO DE VARREDURA / PROCESSAMENTO DE BOTOEIRAS"
+          }
+        ]
+      },
+      {
+        "id": "cd86f886ad7c4f",
+        "name": "CONEXÕES / CABEAMENTO",
+        "pairs": [
+          {
+            "id": "72f93b05ee084e",
+            "problem": "AVARIA(S) EM CONEXÃO(ÕES) (REPARÁVEL)",
+            "action": "REPARO(S) EM CONEXÃO(ÕES)"
+          },
+          {
+            "id": "d6bf8f290a2649",
+            "problem": "CONEXÃO(ÕES) DESNECESSÁRIA(S) / INDEVIDA(S) PRESENTE(S)",
+            "action": "REMOÇÃO(ÕES) DE CONEXÃO(ÕES)"
+          },
+          {
+            "id": "f06ef206780449",
+            "problem": "CABEAMENTO(S) AVARIADO(S) / RESSECADO(S)",
+            "action": "CONFECÇÃO(ÕES) DE CABEAMENTO(S) NOVO(S)"
+          },
+          {
+            "id": "69799c8ea22840",
+            "problem": "CABEAMENTO(S) EM EXCESSO",
+            "action": "REPARO(S) E REMOÇÃO(ÕES) DE CABEAMENTO(S) EXCEDENTE(S) NO INTERIOR DO EQUIPAMENTO"
+          }
+        ]
+      },
+      {
+        "id": "91a3234e7bd640",
+        "name": "DIGITAIS",
+        "pairs": [
+          {
+            "id": "8ced61a51f5e41",
+            "problem": "FALHA EM BLOCO(S) / ENTRADA(S) DIGITAL(IS)",
+            "action": "RECONDICIONAMENTO EM BLOCO(S) / ENTRADA(S) DIGITAL(IS)"
+          },
+          {
+            "id": "06469d955bfe43",
+            "problem": "FALHA EM BLOCO(S) / SAÍDA(S) DIGITAL(IS)",
+            "action": "RECONDICIONAMENTO EM BLOCO(S) / SAÍDA(S) DIGITAL(IS)"
+          }
+        ]
+      },
+      {
+        "id": "6e791ad8c2154e",
+        "name": "ANALÓGICAS",
+        "pairs": [
+          {
+            "id": "c15f07eb067742",
+            "problem": "FALHA EM REGULAGEM(NS) DE ENTRADA(S) ANALÓGICAS",
+            "action": "AJUSTE(S) / REGULAGEM(NS) DE ENTRADA(S) ANALÓGICAS"
+          },
+          {
+            "id": "cb6d94445d1344",
+            "problem": "FALHA EM REGULAGEM(NS) DE SAÍDA(S) ANALÓGICAS",
+            "action": "AJUSTE(S) / REGULAGEM(NS) DE SAÍDA(S) ANALÓGICAS"
+          },
+          {
+            "id": "759292c585664c",
+            "problem": "FALHA EM BLOCO(S) / ENTRADA(S) ANALÓGICA(S)",
+            "action": "RECONDICIONAMENTO EM BLOCO(S) / ENTRADA(S) ANALÓGICA(S)"
+          },
+          {
+            "id": "246f863eefb549",
+            "problem": "FALHA EM BLOCO(S) / SAÍDA(S) ANALÓGICA(S)",
+            "action": "RECONDICIONAMENTO EM BLOCO(S) / SAÍDA(S) ANALÓGICA(S)"
+          }
+        ]
+      },
+      {
+        "id": "1cd9ca79847a44",
+        "name": "ESTRUTURA MECÂNICA / FÍSICA",
+        "pairs": [
+          {
+            "id": "b99eb31ad96548",
+            "problem": "AVARIAS EM ESTRUTURA(S) MECÂNICA(S) / FIXAÇÃO(ÕES)",
+            "action": "REPAROS EM FIXAÇÃO DE PLACAS ELETRÔNICAS"
+          },
+          {
+            "id": "e534f626e3a740",
+            "problem": "PINTURA AVARIADA",
+            "action": "PINTURA(S) DE PARTE(S) E PEÇA(S)"
+          },
+          {
+            "id": "f4692b0be3fa45",
+            "problem": "CAIXA DA IHM SÉRIE 2000 / MICRO NACIONAL AVARIADA",
+            "action": "SUBSTITUIÇÃO DE CAIXA DA IHM SÉRIE 2000 / MICRO NACIONAL"
+          },
+          {
+            "id": "3b657a47247844",
+            "problem": "TAMPA TRASEIRA DA IHM GINOCCHIERA AVARIADA / AUSENTE",
+            "action": "SUBSTITUIÇÃO DA TAMPA TRASEIRA DA IHM GINOCCHIERA"
+          }
+        ]
+      },
+      {
+        "id": "34d51ee6ccd047",
+        "name": "ARREFECIMENTO / REFRIGERAÇÃO",
+        "pairs": [
+          {
+            "id": "31c35aa9d17447",
+            "problem": "FALHA NO SISTEMA DE ARREFECIMENTO DA CPU DA IHM",
+            "action": "CORREÇÃO DE FALHA NO SISTEMA DE ARREFECIMENTO DA CPU DA IHM"
+          },
+          {
+            "id": "2c0708b78ef04a",
+            "problem": "FALHA NO SISTEMA DE ARREFECIMENTO DO BASTIDOR / RACK",
+            "action": "CORREÇÃO DE FALHA NO SISTEMA DE ARREFECIMENTO DO BASTIDOR / RACK DE PLACAS ELETRÔNICA(S)"
+          }
+        ]
+      },
+      {
+        "id": "8eea08777f3241",
+        "name": "SUJIDADES / OXIDAÇÕES",
+        "pairs": [
+          {
+            "id": "942eb76cddf94f",
+            "problem": "ACÚMULO DE SUJIDADES: PÓ, ÓLEO(S), OXIDAÇÕES, VAZAMENTO(S) DE BATERIA(S), ENTRE OUTROS",
+            "action": "LIMPEZA GERAL DO(S) EQUIPAMENTO(S), COM A REMOÇÃO DE SUJIDADES DIVERSAS E/OU OXIDAÇÕES"
+          }
+        ]
+      },
+      {
+        "id": "1bc6a60924824d",
+        "name": "TESTES GERAIS",
+        "pairs": [
+          {
+            "id": "cd4f58410b634c",
+            "problem": "NECESSIDADE DE TESTE GERAL SEM COMUNICAÇÃO DISPONÍVEL EM BANCADA",
+            "action": "TESTES GERAIS SEM COMUNICAÇÃO EM BANCADA - (FAZ-SE NECESSÁRIA A VALIDAÇÃO DE FUNCIONAMENTO PLENO DO(S) EQUIPAMENTO(S) EM CAMPO / MÁQUINA)"
+          },
+          {
+            "id": "04a574fa0e304d",
+            "problem": "NECESSIDADE DE VALIDAÇÃO EM SIMULAÇÃO DO AMBIENTE DE TRABALHO DA MÁQUINA",
+            "action": "TESTES GERAIS EM SIMULAÇÃO AO AMBIENTE DE TRABALHO DA MÁQUINA: XXXX / MODELO: XXXX"
+          }
+        ]
+      }
+    ],
+    "footer": "◼ OBSERVAÇÃO(ÕES) GERAL(IS):\n▪ FAZ-SE NECESSÁRIA A VERIFICAÇÃO DO(S) CIRCUITOS ELÉTRICOS EM CAMPO, OU SEJA, EM MÁQUINA E, A DEVIDA INSTALAÇÃO E CONFIGURAÇÃO DO CLP / EQUIPAMENTO(S) EM CAMPO / MÁQUINA POR MEIO DE UM TÉCNICO EXTERNO HABILITADO PARA TAL.\n\n◼ PRAZO MÉDIO ESTIMADO PARA CONSERTO:\n▪ XX DIA(S) ÚTIL(EIS), APÓS APROVAÇÃO DESTA PROPOSTA.",
+    "checked": []
+  }
+}
