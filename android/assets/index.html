@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<meta name="theme-color" content="#1e293b">
+<title>Checklist OS — Ordem de Serviço</title>
+<style>
+  /* ===== Reset & base ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.45;
+    color: #0f172a;
+    background: #f1f5f9;
+    min-height: 100vh;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+  input, textarea, select { font: inherit; color: inherit; }
+  textarea { resize: vertical; }
+
+  /* ===== Top bar ===== */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: #1e293b;
+    color: #f8fafc;
+    padding: 10px 12px;
+    padding-top: calc(10px + env(safe-area-inset-top));
+    display: flex; align-items: center; gap: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.18);
+  }
+  .topbar h1 {
+    font-size: 16px; font-weight: 600; flex: 1;
+    letter-spacing: .2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .toggle-view {
+    display: inline-flex; background: #334155; border-radius: 8px; padding: 3px; gap: 2px;
+  }
+  .toggle-view button {
+    color: #cbd5e1; padding: 6px 12px; border-radius: 6px;
+    font-size: 13px; font-weight: 600; transition: all .15s;
+  }
+  .toggle-view button.active { background: #2563eb; color: #fff; }
+  .icon-btn {
+    width: 38px; height: 38px; border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 18px; color: #cbd5e1;
+    transition: background .15s, color .15s;
+  }
+  .icon-btn:hover, .icon-btn:active { background: #334155; color: #fff; }
+
+  /* ===== Search ===== */
+  .search-wrap {
+    position: sticky; top: 58px; z-index: 40;
+    padding: 10px 12px; background: #f1f5f9;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .search-wrap input {
+    width: 100%; padding: 10px 12px; border-radius: 8px;
+    border: 1px solid #cbd5e1; background: #fff; font-size: 15px;
+    outline: none; transition: border-color .15s, box-shadow .15s;
+  }
+  .search-wrap input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.15); }
+
+  /* ===== Checklist toolbar (count + clear-all) ===== */
+  .checklist-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; margin-top: 8px;
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;
+    padding: 6px 10px;
+  }
+  .checklist-toolbar .count-info { font-size: 13px; color: #475569; }
+  .checklist-toolbar .count-info strong { color: #2563eb; font-weight: 700; }
+  .checklist-toolbar .clear-btn {
+    color: #b91c1c; font-size: 13px; font-weight: 600;
+    padding: 4px 10px; border-radius: 6px; transition: background .12s;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .checklist-toolbar .clear-btn:hover { background: #fee2e2; }
+  .checklist-toolbar .expand-btn {
+    color: #2563eb; font-size: 13px; font-weight: 600;
+    padding: 4px 10px; border-radius: 6px; transition: background .12s;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .checklist-toolbar .expand-btn:hover { background: #dbeafe; }
+
+  /* ===== Main container ===== */
+  .container { max-width: 880px; margin: 0 auto; padding: 12px; }
+
+  /* ===== Accordion ===== */
+  .category {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+    margin-bottom: 8px; overflow: hidden;
+  }
+  .category-head {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 14px; background: #f8fafc;
+    user-select: none; cursor: pointer;
+    border-bottom: 1px solid transparent;
+    transition: background .12s;
+  }
+  .category-head:hover { background: #f1f5f9; }
+  .category.open .category-head { border-bottom-color: #e2e8f0; }
+  .cat-chevron { font-size: 12px; color: #64748b; transition: transform .2s; flex-shrink: 0; }
+  .category.open .cat-chevron { transform: rotate(90deg); }
+  .cat-name { flex: 1; font-weight: 600; font-size: 15px; color: #1e293b; text-transform: uppercase; }
+  .cat-count { font-size: 12px; color: #64748b; background: #e2e8f0; padding: 2px 8px; border-radius: 10px; flex-shrink: 0; }
+  .cat-count.has-checked { background: #2563eb; color: #fff; }
+  .category-body { display: none; padding: 6px 0; }
+  .category.open .category-body { display: block; }
+  .check-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 14px;
+    transition: background .12s;
+  }
+  .check-item:hover { background: #f8fafc; }
+  .check-item input[type=checkbox] {
+    margin-top: 2px; width: 20px; height: 20px; cursor: pointer; accent-color: #2563eb; flex-shrink: 0;
+  }
+  .check-item label { flex: 1; cursor: pointer; font-size: 15px; color: #1e293b; word-break: break-word; }
+  .check-item.checked label { color: #64748b; text-decoration: line-through; }
+  .empty-cat-note { padding: 8px 14px 12px; font-size: 13px; color: #94a3b8; font-style: italic; }
+
+  /* ===== Empty states ===== */
+  .empty-state {
+    text-align: center; padding: 40px 20px; color: #64748b;
+    font-size: 14px;
+  }
+  .empty-state strong { display: block; color: #475569; margin-bottom: 4px; font-size: 16px; }
+
+  /* ===== Relatório view ===== */
+  .report-actions {
+    display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;
+  }
+  .btn {
+    padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 6px; transition: all .15s;
+    border: 1px solid transparent;
+  }
+  .btn-primary { background: #2563eb; color: #fff; }
+  .btn-primary:hover { background: #1d4ed8; }
+  .btn-secondary { background: #fff; color: #1e293b; border-color: #cbd5e1; }
+  .btn-secondary:hover { background: #f8fafc; border-color: #94a3b8; }
+  .btn-danger { background: #dc2626; color: #fff; }
+  .btn-danger:hover { background: #b91c1c; }
+  .btn-ghost { background: transparent; color: #475569; padding: 6px 10px; font-size: 13px; }
+  .btn-ghost:hover { background: #f1f5f9; color: #1e293b; }
+  .btn-sm { padding: 6px 10px; font-size: 13px; border-radius: 6px; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  .report-preview {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+    padding: 16px; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-word;
+    color: #1e293b; min-height: 200px;
+  }
+  .report-meta { font-size: 12px; color: #64748b; margin-top: 8px; }
+
+  /* ===== Config view ===== */
+  .config-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+  }
+  .config-header h2 { font-size: 18px; flex: 1; color: #1e293b; }
+  .config-section {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+    padding: 14px; margin-bottom: 12px;
+  }
+  .config-section h3 {
+    font-size: 14px; font-weight: 700; color: #475569;
+    text-transform: uppercase; letter-spacing: .5px;
+    margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;
+  }
+  .config-section .actions-row {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;
+  }
+
+  /* Category/pair list in config */
+  .cfg-cat {
+    border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 8px; overflow: hidden;
+  }
+  .cfg-cat-head {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px; background: #f8fafc;
+    user-select: none; cursor: pointer;
+    transition: background .12s;
+  }
+  .cfg-cat-head:hover { background: #f1f5f9; }
+  .cfg-cat-chevron { font-size: 11px; color: #64748b; transition: transform .2s; flex-shrink: 0; width: 14px; }
+  .cfg-cat.open .cfg-cat-chevron { transform: rotate(90deg); }
+  .cfg-cat-name { flex: 1; font-weight: 600; color: #1e293b; text-transform: uppercase; font-size: 14px; }
+  .cfg-cat-pairs-count { font-size: 12px; color: #64748b; flex-shrink: 0; }
+  .cfg-controls { display: flex; gap: 2px; }
+  .cfg-controls button {
+    width: 32px; height: 32px; border-radius: 6px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 14px; color: #475569; transition: all .12s;
+  }
+  .cfg-controls button:hover { background: #e2e8f0; color: #1e293b; }
+  .cfg-controls button.danger:hover { background: #fee2e2; color: #b91c1c; }
+  .cfg-controls button[disabled] { pointer-events: none; }
+
+  .cfg-cat-body { display: none; }
+  .cfg-cat.open .cfg-cat-body { display: block; }
+  .cfg-pairs { padding: 6px 12px 10px; }
+  .cfg-pair {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 8px 4px; border-top: 1px dashed #e2e8f0;
+    font-size: 13px;
+  }
+  .cfg-pair:first-child { border-top: none; }
+  .cfg-pair-content { flex: 1; min-width: 0; }
+  .cfg-pair-problem { color: #1e293b; font-weight: 500; word-break: break-word; }
+  .cfg-pair-problem::before { content: "P: "; color: #2563eb; font-weight: 700; }
+  .cfg-pair-action { color: #475569; margin-top: 2px; word-break: break-word; }
+  .cfg-pair-action::before { content: "A: "; color: #16a34a; font-weight: 700; }
+  .cfg-add-pair-row { padding: 8px 12px; border-top: 1px solid #e2e8f0; background: #f8fafc; }
+
+  /* Forms */
+  .form-group { margin-bottom: 12px; }
+  .form-group label {
+    display: block; font-size: 13px; font-weight: 600;
+    color: #475569; margin-bottom: 4px;
+  }
+  .form-group input, .form-group textarea {
+    width: 100%; padding: 10px 12px; border-radius: 8px;
+    border: 1px solid #cbd5e1; background: #fff; font-size: 15px;
+    outline: none; transition: border-color .15s, box-shadow .15s;
+  }
+  .form-group input:focus, .form-group textarea:focus {
+    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.15);
+  }
+  .form-group textarea { min-height: 80px; font-family: inherit; }
+  .form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+
+  /* Modal */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(15,23,42,.55);
+    display: flex; align-items: flex-end; justify-content: center;
+    z-index: 100; padding: 0;
+    animation: fadeIn .15s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    background: #fff; border-radius: 14px 14px 0 0;
+    width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto;
+    padding: 18px 16px calc(20px + env(safe-area-inset-bottom));
+    animation: slideUp .2s ease;
+    box-shadow: 0 -4px 20px rgba(0,0,0,.15);
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  @media (min-width: 600px) {
+    .modal-backdrop { align-items: center; padding: 20px; }
+    .modal { border-radius: 14px; }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  }
+  .modal h3 { font-size: 17px; margin-bottom: 14px; color: #1e293b; }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: #1e293b; color: #fff; padding: 10px 18px;
+    border-radius: 999px; font-size: 14px; font-weight: 500;
+    z-index: 200; box-shadow: 0 4px 12px rgba(0,0,0,.25);
+    animation: toastIn .2s ease;
+    max-width: 90vw; text-align: center;
+  }
+  @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+  .toast.error { background: #dc2626; }
+  .toast.success { background: #16a34a; }
+
+  /* Confirm dialog */
+  .confirm-box {
+    background: #fff; border-radius: 12px; padding: 20px;
+    max-width: 400px; width: 100%;
+  }
+  .confirm-box p { margin-bottom: 16px; color: #1e293b; font-size: 15px; }
+  .confirm-box .form-actions { justify-content: center; }
+
+  /* Hidden helper */
+  .hidden { display: none !important; }
+
+  /* Desktop tweaks */
+  @media (min-width: 768px) {
+    body { font-size: 16px; }
+    .container { padding: 18px; }
+    .topbar h1 { font-size: 17px; }
+    .report-preview { font-size: 14px; }
+  }
+@media(max-width:480px){.topbar{gap:4px;padding-left:8px;padding-right:8px}.topbar h1{font-size:13px}.toggle-view button{font-size:11px;padding:7px 5px}.icon-btn{width:30px}.checklist-toolbar{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+
+<!-- ===== Top bar ===== -->
+<header class="topbar">
+  <h1>Checklist OS</h1>
+  <div class="toggle-view" id="toggleView">
+    <button data-view="checklist" class="active">Checklist</button>
+    <button data-view="relatorio">Relatório</button><button data-view="history">Histórico</button>
+  </div>
+  <button class="icon-btn" id="btnSettings" title="Configurações" aria-label="Configurações">⚙️</button>
+</header>
+
+<!-- ===== Search (only on checklist view) ===== -->
+<div class="search-wrap" id="searchWrap">
+  <input type="search" id="searchInput" placeholder="Buscar problema, ação ou categoria..." autocomplete="off">
+  <label style="display:flex;gap:8px;align-items:center;font-size:13px;margin-top:8px"><input id="selectedOnly" type="checkbox"> Somente marcados</label><div class="checklist-toolbar" id="checklistToolbar" style="display:none;"></div>
+</div>
+
+<!-- ===== Main container ===== -->
+<main class="container" id="mainContainer">
+  <!-- Checklist view -->
+  <section id="view-checklist"></section>
+  <!-- Relatório view -->
+  <section id="view-relatorio" class="hidden"></section>
+  <!-- Config view -->
+  <section id="view-config" class="hidden"></section><section id="view-history" class="hidden"></section>
+</main>
+
+<!-- ===== Modal mount ===== -->
+<div id="modalRoot"></div>
+
+<!-- ===== Hidden persistent file input (lives outside any re-rendered view) ===== -->
+<input type="file" id="importFile" accept=".txt,text/plain,application/json" style="display:none">
+
+<script>
+(function() {
+  'use strict';
+
+  // ============ Constants ============
+  const STORAGE_KEY = 'checklist_os_v1';
+  const EXPORT_HEADER = 'CHECKLIST-OS-DATA-V1';
+
+  // ============ State ============
+  let state = {
+    categories: [],   // [{id, name, pairs: [{id, problem, action}]}]
+    footer: '',
+    checked: [], history: [], draft: {number:'', equipment:'', notes:''}
+  };
+  let currentView = 'checklist'; // 'checklist' | 'relatorio' | 'config'
+  let searchQuery = ''; let selectedOnly=false;
+  let accordionOpen = {}; // {catId: true/false} — Modo Uso (Checklist)
+  let configAccordionOpen = {}; // {catId: true/false} — Modo Cadastro (Config)
+
+  // ============ Utils ============
+  function uid() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+  function escapeHTML(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+  function normalize(s) {
+    return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  }
+  function showToast(msg, type) {
+    const t = document.createElement('div');
+    t.className = 'toast' + (type ? ' ' + type : '');
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .25s'; }, 1800);
+    setTimeout(() => { t.remove(); }, 2200);
+  }
+
+  // ============ Persistence ============
+  function saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      showToast('Erro ao salvar localmente', 'error');
+    }
+  }
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && Array.isArray(parsed.categories)) {
+          state = {
+            categories: parsed.categories,
+            footer: parsed.footer || '',
+            checked: Array.isArray(parsed.checked) ? parsed.checked : [], history: safeHistory(parsed.history), draft: safeDraft(parsed.draft)
+          };
+          // Ensure all pairs have IDs
+          state.categories.forEach(c => {
+            if (!c.id) c.id = uid();
+            if (!Array.isArray(c.pairs)) c.pairs = [];
+            c.pairs.forEach(p => { if (!p.id) p.id = uid(); });
+          });
+        }
+      }
+    } catch (e) {
+      console.warn('loadState failed', e);
+    }
+  }
+
+  // ============ Report generation ============
+  function generateReportText() {
+    // Build list of [categoryName, [pair, pair, ...]] for checked items only
+    const visibleCats = [];
+    for (const cat of state.categories) {
+      const checkedPairs = cat.pairs.filter(p => state.checked.includes(p.id));
+      if (checkedPairs.length > 0) {
+        visibleCats.push({ name: cat.name, pairs: checkedPairs });
+      }
+    }
+
+    const lines = []; const draft=safeDraft(state.draft);
+
+    if (visibleCats.length === 0) {
+      return '';
+    }
+
+    // Bloco Problemas — sem linhas em branco entre cabeçalho, categorias e itens
+    if(draft.number)lines.push('OS: '+draft.number);if(draft.equipment)lines.push('EQUIPAMENTO: '+draft.equipment);if(lines.length)lines.push('');
+    lines.push('◼ PROBLEMAS DETECTADOS:');
+    visibleCats.forEach(cat => {
+      lines.push(cat.name.toUpperCase() + ':');
+      cat.pairs.forEach((p, idx) => {
+        const isLast = idx === cat.pairs.length - 1;
+        lines.push('▪ ' + p.problem.toUpperCase() + (isLast ? '.' : ';'));
+      });
+    });
+
+    // Separador único entre os dois blocos
+    lines.push('');
+
+    // Bloco Ações — sem linhas em branco entre cabeçalho, categorias e itens
+    lines.push('◼ AÇÕES A SEREM REALIZADAS:');
+    visibleCats.forEach(cat => {
+      lines.push(cat.name.toUpperCase() + ':');
+      cat.pairs.forEach((p, idx) => {
+        const isLast = idx === cat.pairs.length - 1;
+        lines.push('▪ ' + p.action.toUpperCase() + (isLast ? '.' : ';'));
+      });
+    });
+
+    // Rodapé (literal) — separado por UMA linha em branco
+    if(draft.notes)lines.push('','OBSERVAÇÕES:',draft.notes);
+    if (state.footer && state.footer.trim() !== '') {
+      lines.push('');
+      lines.push(state.footer);
+    }
+
+    return lines.join('\n');
+  }
+
+  // ============ Rendering: Checklist ============
+  function renderChecklist() {
+    const container = document.getElementById('view-checklist');
+    const q = normalize(searchQuery.trim());
+
+    if (state.categories.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <strong>Nenhum checklist cadastrado</strong>
+          Toque em ⚙️ para cadastrar categorias e problemas, ou use "Importar dados" na configuração para carregar um backup .txt.
+        </div>`;
+      updateChecklistToolbar();
+      return;
+    }
+
+    // Filter
+    let visibleCats = state.categories.map(cat => {
+      if(!q&&!selectedOnly)return cat;
+      const matchedPairs=cat.pairs.filter(p=>(!selectedOnly||state.checked.includes(p.id))&&(!q||q.split(/\s+/).every(t=>normalize(cat.name+' '+p.problem+' '+p.action).includes(t))));
+      if (matchedPairs.length === 0) return null;
+      return { ...cat, pairs: matchedPairs };
+    }).filter(Boolean);
+
+    if (visibleCats.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <strong>Nenhum resultado</strong>
+          Nenhum problema encontrado para "${escapeHTML(searchQuery)}".
+        </div>`;
+      return;
+    }
+
+    let html = '';
+    visibleCats.forEach(cat => {
+      const checkedCount = cat.pairs.filter(p => state.checked.includes(p.id)).length;
+      const isOpen = !!q || selectedOnly || accordionOpen[cat.id] === true; // default: collapsed (false/undefined)
+      html += `
+        <div class="category ${isOpen ? 'open' : ''}" data-cat-id="${cat.id}">
+          <div class="category-head" data-toggle-cat="${cat.id}">
+            <span class="cat-chevron">▶</span>
+            <span class="cat-name">${escapeHTML(cat.name)}</span>
+            <span class="cat-count ${checkedCount > 0 ? 'has-checked' : ''}">${checkedCount}/${cat.pairs.length}</span>
+          </div>
+          <div class="category-body">`;
+      if (cat.pairs.length === 0) {
+        html += `<div class="empty-cat-note">Sem itens cadastrados.</div>`;
+      } else {
+        cat.pairs.forEach(p => {
+          const isChecked = state.checked.includes(p.id);
+          html += `
+            <div class="check-item ${isChecked ? 'checked' : ''}">
+              <input type="checkbox" id="chk-${p.id}" data-pair-id="${p.id}" ${isChecked ? 'checked' : ''}>
+              <label for="chk-${p.id}">${escapeHTML(p.problem)}</label>
+            </div>`;
+        });
+      }
+      html += `</div></div>`;
+    });
+    container.innerHTML = html;
+    updateChecklistToolbar();
+  }
+
+  // ============ Rendering: Relatório ============
+  function renderRelatorio() {
+    const container = document.getElementById('view-relatorio');
+    const text = generateReportText();
+    const checkedCount = state.checked.length;
+
+    container.innerHTML = `
+      <div class="config-section"><h3>Identificação opcional</h3><div class="form-group"><label for="osNumber">Número da OS</label><input id="osNumber" value="${escapeHTML(state.draft.number)}"></div><div class="form-group"><label for="osEquipment">Equipamento</label><input id="osEquipment" value="${escapeHTML(state.draft.equipment)}"></div><div class="form-group"><label for="osNotes">Observações</label><textarea id="osNotes">${escapeHTML(state.draft.notes)}</textarea></div></div><div class="report-actions">
+        <button class="btn btn-primary" id="btnCopy" ${!text ? 'disabled' : ''}>📋 Copiar</button>
+        <button class="btn btn-secondary" id="btnDownload" ${!text ? 'disabled' : ''}>⬇️ Baixar .txt</button>
+        <button class="btn btn-secondary" id="btnShare" ${!text ? 'disabled' : ''}>Compartilhar</button><button class="btn btn-primary" id="btnArchive" ${!text ? 'disabled' : ''}>Salvar OS</button><button class="btn btn-ghost" id="btnClearChecks" ${checkedCount === 0 ? 'disabled' : ''}>Limpar marcações</button>
+      </div>
+      <div class="report-preview" id="reportPreview">${text ? escapeHTML(text) : '<em style="color:#94a3b8">Nenhum problema marcado. Marque itens no Checklist para gerar o relatório.</em>'}</div>
+      <div class="report-meta">${checkedCount} item(ns) marcado(s).</div>
+    `;
+  }
+
+  // ============ Rendering: Config ============
+  function renderConfig() {
+    const container = document.getElementById('view-config');
+    container.innerHTML = `
+      <div class="config-header">
+        <h2>⚙️ Configuração</h2>
+        <button class="btn btn-secondary btn-sm" id="btnBackFromConfig">← Voltar</button>
+      </div>
+
+      <div class="config-section">
+        <h3>Categorias & Pares</h3>
+        <div id="cfgCatsList"></div>
+        <div class="actions-row">
+          <button class="btn btn-primary btn-sm" id="btnAddCat">+ Nova categoria</button>
+        </div>
+      </div>
+
+      <div class="config-section">
+        <h3>Rodapé do relatório</h3>
+        <div class="form-group">
+          <textarea id="cfgFooter" placeholder="Digite o rodapé. O texto será inserido literalmente ao final de todo relatório. Você mesmo digita quebras de linha e caracteres especiais.">${escapeHTML(state.footer)}</textarea>
+        </div>
+        <div class="actions-row">
+          <button class="btn btn-primary btn-sm" id="btnSaveFooter">Salvar rodapé</button>
+        </div>
+      </div>
+
+      <div class="config-section">
+        <h3>Backup / Transferência</h3>
+        <p style="font-size:13px;color:#64748b;margin-bottom:10px;">
+          Exporte para transferir todos os dados (categorias, pares e rodapé) para outro dispositivo.
+          A importação <strong>substitui</strong> todos os dados atuais.
+        </p>
+        <div class="actions-row">
+          <button class="btn btn-secondary btn-sm" id="btnExport">⬇️ Exportar dados</button>
+          <button class="btn btn-secondary btn-sm" id="btnImport">⬆️ Importar dados</button>
+        </div>
+      </div>
+    `;
+
+    renderConfigCats();
+  }
+
+  function renderConfigCats() {
+    const list = document.getElementById('cfgCatsList');
+    if (state.categories.length === 0) {
+      list.innerHTML = `<p style="font-size:13px;color:#94a3b8;padding:6px 0;">Nenhuma categoria cadastrada.</p>`;
+      return;
+    }
+    let html = '';
+    state.categories.forEach((cat, idx) => {
+      const isOpen = configAccordionOpen[cat.id] === true; // default: collapsed
+      html += `
+        <div class="cfg-cat ${isOpen ? 'open' : ''}" data-cat-id="${cat.id}">
+          <div class="cfg-cat-head" data-toggle-cfg-cat="${cat.id}">
+            <span class="cfg-cat-chevron">▶</span>
+            <span class="cfg-cat-name">${escapeHTML(cat.name)}</span>
+            <span class="cfg-cat-pairs-count">${cat.pairs.length} par(es)</span>
+            <div class="cfg-controls">
+              <button title="Subir" data-action="up-cat" data-idx="${idx}" ${idx === 0 ? 'disabled style="opacity:.3"' : ''}>↑</button>
+              <button title="Descer" data-action="down-cat" data-idx="${idx}" ${idx === state.categories.length - 1 ? 'disabled style="opacity:.3"' : ''}>↓</button>
+              <button title="Editar" data-action="edit-cat" data-id="${cat.id}">✏️</button>
+              <button title="Excluir" class="danger" data-action="del-cat" data-id="${cat.id}">🗑️</button>
+            </div>
+          </div>
+          <div class="cfg-cat-body">
+            <div class="cfg-pairs">`;
+      if (cat.pairs.length === 0) {
+        html += `<div style="font-size:12px;color:#94a3b8;padding:6px 0;">Sem pares.</div>`;
+      } else {
+        cat.pairs.forEach((p, pidx) => {
+          html += `
+            <div class="cfg-pair">
+              <div class="cfg-pair-content">
+                <div class="cfg-pair-problem">${escapeHTML(p.problem)}</div>
+                <div class="cfg-pair-action">${escapeHTML(p.action)}</div>
+              </div>
+              <div class="cfg-controls">
+                <button title="Subir" data-action="up-pair" data-cat-id="${cat.id}" data-idx="${pidx}" ${pidx === 0 ? 'disabled style="opacity:.3"' : ''}>↑</button>
+                <button title="Descer" data-action="down-pair" data-cat-id="${cat.id}" data-idx="${pidx}" ${pidx === cat.pairs.length - 1 ? 'disabled style="opacity:.3"' : ''}>↓</button>
+                <button title="Editar" data-action="edit-pair" data-cat-id="${cat.id}" data-id="${p.id}">✏️</button>
+                <button title="Excluir" class="danger" data-action="del-pair" data-cat-id="${cat.id}" data-id="${p.id}">🗑️</button>
+              </div>
+            </div>`;
+        });
+      }
+      html += `
+            </div>
+            <div class="cfg-add-pair-row">
+              <button class="btn btn-ghost btn-sm" data-action="add-pair" data-cat-id="${cat.id}">+ Adicionar par</button>
+            </div>
+          </div>
+        </div>`;
+    });
+    list.innerHTML = html;
+  }
+
+  // ============ Modal: Generic ============
+  function closeModal() {
+    document.getElementById('modalRoot').innerHTML = '';
+  }
+  function openModal(html) {
+    document.getElementById('modalRoot').innerHTML = `<div class="modal-backdrop" id="modalBackdrop">${html}</div>`;
+  }
+
+  function openCategoryModal(existingCat) {
+    const isEdit = !!existingCat;
+    openModal(`
+      <div class="modal">
+        <h3>${isEdit ? 'Editar categoria' : 'Nova categoria'}</h3>
+        <div class="form-group">
+          <label for="catName">Nome da categoria</label>
+          <input type="text" id="catName" maxlength="80" value="${isEdit ? escapeHTML(existingCat.name) : ''}" placeholder="Ex: PCB, FONTE, DISPLAY...">
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-secondary" id="modalCancel">Cancelar</button>
+          <button class="btn btn-primary" id="modalSave">${isEdit ? 'Salvar' : 'Criar'}</button>
+        </div>
+      </div>
+    `);
+    setTimeout(() => document.getElementById('catName').focus(), 50);
+    document.getElementById('modalCancel').onclick = closeModal;
+    document.getElementById('modalSave').onclick = () => {
+      const name = document.getElementById('catName').value.trim();
+      if (!name) { showToast('Digite um nome', 'error'); return; }
+      if (isEdit) {
+        existingCat.name = name;
+      } else {
+        const newCat = { id: uid(), name: name, pairs: [] };
+        state.categories.push(newCat);
+        accordionOpen[newCat.id] = false; // new categories start collapsed
+      }
+      saveState();
+      closeModal();
+      renderConfigCats();
+    };
+  }
+
+  function openPairModal(catId, existingPair) {
+    const cat = state.categories.find(c => c.id === catId);
+    if (!cat) return;
+    const isEdit = !!existingPair;
+    openModal(`
+      <div class="modal">
+        <h3>${isEdit ? 'Editar par' : 'Novo par'} — ${escapeHTML(cat.name)}</h3>
+        <div class="form-group">
+          <label for="pairProblem">Texto do Problema</label>
+          <input type="text" id="pairProblem" maxlength="200" value="${isEdit ? escapeHTML(existingPair.problem) : ''}" placeholder="Ex: Capacitor estufado">
+        </div>
+        <div class="form-group">
+          <label for="pairAction">Texto da Ação</label>
+          <input type="text" id="pairAction" maxlength="200" value="${isEdit ? escapeHTML(existingPair.action) : ''}" placeholder="Ex: Trocar capacitor">
+        </div>
+        <p style="font-size:12px;color:#64748b;">Os caracteres especiais (▪, ;, ., CAIXA ALTA) são adicionados automaticamente no relatório.</p>
+        <div class="form-actions">
+          <button class="btn btn-secondary" id="modalCancel">Cancelar</button>
+          <button class="btn btn-primary" id="modalSave">${isEdit ? 'Salvar' : 'Criar'}</button>
+        </div>
+      </div>
+    `);
+    setTimeout(() => document.getElementById('pairProblem').focus(), 50);
+    document.getElementById('modalCancel').onclick = closeModal;
+    document.getElementById('modalSave').onclick = () => {
+      const problem = document.getElementById('pairProblem').value.trim();
+      const action = document.getElementById('pairAction').value.trim();
+      if (!problem) { showToast('Digite o problema', 'error'); return; }
+      if (!action) { showToast('Digite a ação', 'error'); return; }
+      if (isEdit) {
+        existingPair.problem = problem;
+        existingPair.action = action;
+      } else {
+        cat.pairs.push({ id: uid(), problem: problem, action: action });
+      }
+      saveState();
+      closeModal();
+      renderConfigCats();
+    };
+  }
+
+  function openConfirm(message, onConfirm) {
+    openModal(`
+      <div class="modal" style="max-width:400px;">
+        <p>${escapeHTML(message)}</p>
+        <div class="form-actions">
+          <button class="btn btn-secondary" id="confirmCancel">Cancelar</button>
+          <button class="btn btn-danger" id="confirmOk">Excluir</button>
+        </div>
+      </div>
+    `);
+    document.getElementById('confirmCancel').onclick = closeModal;
+    document.getElementById('confirmOk').onclick = () => { closeModal(); onConfirm(); };
+  }
+
+  // ============ Event handlers ============
+  function setView(view) {
+    currentView = view;
+    // toggle buttons
+    document.querySelectorAll('#toggleView button').forEach(b => {
+      b.classList.toggle('active', b.dataset.view === view);
+    });
+    // search visibility: only on checklist
+    document.getElementById('searchWrap').style.display = (view === 'checklist') ? 'block' : 'none';
+    // sections visibility
+    document.getElementById('view-checklist').classList.toggle('hidden', view !== 'checklist');
+    document.getElementById('view-relatorio').classList.toggle('hidden', view !== 'relatorio');
+    document.getElementById('view-config').classList.toggle('hidden', view !== 'config');
+    // toggle-view visibility: hidden when in config
+    document.getElementById('toggleView').style.visibility = (view === 'config') ? 'hidden' : 'visible';
+
+    document.getElementById('view-history').classList.toggle('hidden',view!=='history');if(view==='history')renderHistory();else if (view === 'checklist') renderChecklist();
+    else if (view === 'relatorio') renderRelatorio();
+    else if (view === 'config') renderConfig();
+  }
+
+  function toggleAccordion(catId) {
+    // default (undefined/false) = collapsed; first click opens
+    accordionOpen[catId] = !accordionOpen[catId];
+    const el = document.querySelector(`.category[data-cat-id="${catId}"]`);
+    if (el) el.classList.toggle('open');
+    updateChecklistToolbar();
+  }
+
+  function toggleCheck(pairId) {
+    const idx = state.checked.indexOf(pairId);
+    if (idx >= 0) state.checked.splice(idx, 1);
+    else state.checked.push(pairId);
+    saveState();
+    // Update just that item + counts (cheap)
+    renderChecklist();
+  }
+
+  function clearChecks() {
+    openConfirm('Limpar todas as marcações do checklist atual?', () => {
+      state.checked = [];
+      saveState();
+      renderChecklist();
+      updateChecklistToolbar();
+      if(currentView==='relatorio')renderRelatorio();showToast('Marcações limpas', 'success');
+    });
+  }
+
+  // Atualiza a barra de ferramentas do Checklist (contagem + ações)
+  function updateChecklistToolbar() {
+    const toolbar = document.getElementById('checklistToolbar');
+    if (!toolbar) return;
+    const count = state.checked.length;
+    const totalCats = state.categories.length;
+    if (totalCats === 0) {
+      toolbar.style.display = 'none';
+      toolbar.innerHTML = '';
+      return;
+    }
+    // Detectar se todas as categorias estão recolhidas
+    const allCollapsed = state.categories.every(c => accordionOpen[c.id] !== true);
+    toolbar.style.display = 'flex';
+    toolbar.innerHTML = `
+      <span class="count-info">
+        ${count > 0 ? `<strong>${count}</strong> item(ns) marcado(s)` : 'Nenhum item marcado'}
+      </span>
+      <div style="display:flex;gap:2px;">
+        <button class="expand-btn" id="btnToggleAll">
+          ${allCollapsed ? '▾ Expandir tudo' : '▴ Recolher tudo'}
+        </button>
+        ${count > 0 ? '<button class="clear-btn" id="btnClearAllChecks">🗑 Limpar tudo</button>' : ''}
+      </div>
+    `;
+  }
+
+  // Expande ou recolhe todas as categorias de uma vez
+  function toggleAllAccordions() {
+    const allCollapsed = state.categories.every(c => accordionOpen[c.id] !== true);
+    const target = allCollapsed; // se tudo recolhido, expandir; senão, recolher
+    state.categories.forEach(c => { accordionOpen[c.id] = target; });
+    renderChecklist();
+    updateChecklistToolbar();
+  }
+
+  // ============ Export / Import ============
+  function exportData() {
+    const payload = {
+      header: EXPORT_HEADER,
+      exportedAt: new Date().toISOString(),
+      data: state
+    };
+    const text = JSON.stringify(payload, null, 2); if(window.Android){Android.saveText('checklist-os-backup-'+Date.now()+'.txt',text);return;}
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const d = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    a.download = `checklist-os-backup-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Backup exportado', 'success');
+  }
+
+  function importData(file) {
+    // Etapa 1: ler o arquivo e validar ANTES de qualquer confirmação
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      let text = String(e.target.result || '');
+      // Remover BOM se presente
+      if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+
+      let parsed = null;
+      let parseError = null;
+      try {
+        parsed = JSON.parse(text);
+      } catch (err) {
+        parseError = err.message;
+      }
+
+      // Validar estrutura esperada: { header, data: { categories: [], footer: '' } }
+      // Também aceitar formato legado: { categories: [] } direto
+      let incoming = null;
+      if (parsed) {
+        if (parsed.data && Array.isArray(parsed.data.categories)) {
+          incoming = parsed.data;
+        } else if (Array.isArray(parsed.categories)) {
+          incoming = parsed;
+        } else {
+          parseError = 'Estrutura do JSON não reconhecida';
+        }
+      }
+
+      if(incoming&&!validCatalog(incoming)){incoming=null;parseError='Categorias ou pares inválidos';}
+      if (!incoming) {
+        // Erro: mostrar modal de erro explícito
+        showImportResultModal(false, null, parseError || 'Arquivo não contém dados válidos', file.name);
+        return;
+      }
+
+      // Sucesso no parse: mostrar modal de confirmação com resumo
+      const totalCats = incoming.categories.length;
+      const totalPairs = incoming.categories.reduce((acc, c) => acc + (Array.isArray(c.pairs) ? c.pairs.length : 0), 0);
+      const hasFooter = !!(incoming.footer && String(incoming.footer).trim());
+      showImportConfirmModal(incoming, file.name, totalCats, totalPairs, hasFooter);
+    };
+    reader.onerror = () => {
+      showImportResultModal(false, null, 'Não foi possível ler o arquivo (erro de leitura).', file.name);
+    };
+    reader.readAsText(file, 'utf-8');
+  }
+
+  // Modal de confirmação mostrando o que será importado (resumo visual)
+  function showImportConfirmModal(incoming, fileName, totalCats, totalPairs, hasFooter) {
+    openModal(`
+      <div class="modal">
+        <h3>📋 Confirmar importação</h3>
+        <p style="font-size:14px;color:#475569;margin-bottom:12px;">
+          Arquivo selecionado: <strong style="color:#1e293b;word-break:break-all;">${escapeHTML(fileName)}</strong>
+        </p>
+        <div style="background:#f1f5f9;border-radius:8px;padding:12px;margin-bottom:14px;font-size:14px;color:#1e293b;">
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #e2e8f0;">
+            <span>Categorias:</span><strong>${totalCats}</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #e2e8f0;">
+            <span>Pares (problema+ação):</span><strong>${totalPairs}</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;">
+            <span>Rodapé:</span><strong>${hasFooter ? 'Sim' : 'Não'}</strong>
+          </div>
+        </div>
+        <div style="background:#fef3c7;border:1px solid #fde68a;color:#92400e;padding:10px 12px;border-radius:8px;font-size:13px;margin-bottom:14px;">
+          ⚠️ <strong>Atenção:</strong> esta ação substituirá TODOS os dados atuais. Não pode ser desfeita.
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-secondary" id="importCancel">Cancelar</button>
+          <button class="btn btn-primary" id="importConfirm">Confirmar importação</button>
+        </div>
+      </div>
+    `);
+    document.getElementById('importCancel').onclick = closeModal;
+    document.getElementById('importConfirm').onclick = () => {
+      applyImport(incoming, fileName);
+    };
+  }
+
+  function applyImport(incoming, fileName) {
+    // Re-gerar IDs para evitar colisões
+    const newCats = incoming.categories.map(c => ({
+      id: uid(),
+      name: String(c.name || '').trim() || 'Sem nome',
+      pairs: (Array.isArray(c.pairs) ? c.pairs : []).map(p => ({
+        id: uid(),
+        problem: String(p.problem || ''),
+        action: String(p.action || '')
+      }))
+    }));
+    state = {
+      categories: newCats,
+      footer: String(incoming.footer || ''), history:safeHistory(incoming.history),draft:safeDraft(incoming.draft),
+      checked: []
+    };
+    accordionOpen = {};
+    configAccordionOpen = {};
+    state.categories.forEach(c => { accordionOpen[c.id] = false; }); // imported categories start collapsed (both modes)
+    saveState();
+
+    // Fechar modal de confirmação e mostrar tela de sucesso explícita
+    const totalCats = state.categories.length;
+    const totalPairs = state.categories.reduce((a, c) => a + c.pairs.length, 0);
+    showImportResultModal(true, { totalCats, totalPairs, hasFooter: !!(state.footer && state.footer.trim()) }, null, fileName);
+  }
+
+  // Modal de resultado final (sucesso ou erro) — confirmação visual definitiva
+  function showImportResultModal(success, summary, errorMsg, fileName) {
+    const icon = success ? '✅' : '❌';
+    const title = success ? 'Importação concluída' : 'Falha na importação';
+    const color = success ? '#16a34a' : '#dc2626';
+    const bg = success ? '#dcfce7' : '#fee2e2';
+    const border = success ? '#86efac' : '#fca5a5';
+
+    let body;
+    if (success) {
+      body = `
+        <div style="background:${bg};border:1px solid ${border};border-radius:8px;padding:12px;margin-bottom:14px;">
+          <div style="font-size:16px;font-weight:700;color:${color};margin-bottom:6px;">${icon} ${title}</div>
+          <div style="font-size:14px;color:#1e293b;">
+            <div>Arquivo: <strong style="word-break:break-all;">${escapeHTML(fileName)}</strong></div>
+            <div style="margin-top:4px;">Categorias carregadas: <strong>${summary.totalCats}</strong></div>
+            <div>Pares carregados: <strong>${summary.totalPairs}</strong></div>
+            <div>Rodapé: <strong>${summary.hasFooter ? 'Sim' : 'Não'}</strong></div>
+          </div>
+        </div>
+        <p style="font-size:13px;color:#64748b;margin-bottom:14px;">
+          A tela foi atualizada para o Checklist. Todos os itens importados estão visíveis e prontos para uso.
+        </p>`;
+    } else {
+      body = `
+        <div style="background:${bg};border:1px solid ${border};border-radius:8px;padding:12px;margin-bottom:14px;">
+          <div style="font-size:16px;font-weight:700;color:${color};margin-bottom:6px;">${icon} ${title}</div>
+          <div style="font-size:14px;color:#1e293b;">
+            <div>Arquivo: <strong style="word-break:break-all;">${escapeHTML(fileName)}</strong></div>
+            <div style="margin-top:6px;color:#991b1b;">Motivo: ${escapeHTML(errorMsg || 'desconhecido')}</div>
+          </div>
+        </div>
+        <p style="font-size:13px;color:#64748b;margin-bottom:14px;">
+          Verifique se o arquivo foi gerado pela função <strong>Exportar dados</strong> deste app.
+          Apenas arquivos .txt exportados pelo app são aceitos.
+        </p>`;
+    }
+
+    openModal(`
+      <div class="modal">
+        <h3>Importação de dados</h3>
+        ${body}
+        <div class="form-actions">
+          <button class="btn ${success ? 'btn-primary' : 'btn-secondary'}" id="importResultClose">${success ? 'Ver Checklist' : 'Fechar'}</button>
+        </div>
+      </div>
+    `);
+    document.getElementById('importResultClose').onclick = () => {
+      closeModal();
+      if (success) setView('checklist');
+    };
+  }
+
+  // ============ Copy / Download report ============
+  function copyReport() {
+    const text = generateReportText();
+    if (!text) { showToast('Nada para copiar', 'error'); return; }
+    if(window.Android){Android.copyText(text);return;}if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        () => showToast('Relatório copiado', 'success'),
+        () => fallbackCopy(text)
+      );
+    } else {
+      fallbackCopy(text);
+    }
+  }
+  function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      showToast('Relatório copiado', 'success');
+    } catch (e) {
+      showToast('Não foi possível copiar', 'error');
+    }
+    document.body.removeChild(ta);
+  }
+
+  function downloadReport() { if(window.Android){const text=generateReportText();if(text)Android.saveText('relatorio-os-'+Date.now()+'.txt',text);return;}
+    const text = generateReportText();
+    if (!text) { showToast('Nada para baixar', 'error'); return; }
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const d = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    a.download = `relatorio-os-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Relatório baixado', 'success');
+  }
+
+  // ============ Reorder helpers ============
+  function moveCat(idx, dir) {
+    const newIdx = idx + dir;
+    if (newIdx < 0 || newIdx >= state.categories.length) return;
+    const tmp = state.categories[idx];
+    state.categories[idx] = state.categories[newIdx];
+    state.categories[newIdx] = tmp;
+    saveState();
+    renderConfigCats();
+  }
+
+  // Toggle acordeão de categoria no Modo Cadastro
+  function toggleCfgAccordion(catId) {
+    configAccordionOpen[catId] = !configAccordionOpen[catId];
+    const el = document.querySelector(`.cfg-cat[data-cat-id="${catId}"]`);
+    if (el) el.classList.toggle('open');
+  }
+  function movePair(catId, idx, dir) {
+    const cat = state.categories.find(c => c.id === catId);
+    if (!cat) return;
+    const newIdx = idx + dir;
+    if (newIdx < 0 || newIdx >= cat.pairs.length) return;
+    const tmp = cat.pairs[idx];
+    cat.pairs[idx] = cat.pairs[newIdx];
+    cat.pairs[newIdx] = tmp;
+    saveState();
+    renderConfigCats();
+  }
+  function deleteCategory(catId) {
+    const cat = state.categories.find(c => c.id === catId);
+    if (!cat) return;
+    const msg = `Excluir categoria "${cat.name}" e todos os ${cat.pairs.length} par(es) dentro dela?`;
+    openConfirm(msg, () => {
+      // Remove checked references
+      const pairIds = cat.pairs.map(p => p.id);
+      state.checked = state.checked.filter(id => !pairIds.includes(id));
+      state.categories = state.categories.filter(c => c.id !== catId);
+      delete accordionOpen[catId];
+      delete configAccordionOpen[catId];
+      saveState();
+      renderConfigCats();
+      showToast('Categoria excluída', 'success');
+    });
+  }
+  function deletePair(catId, pairId) {
+    openConfirm('Excluir este par?', () => {
+      const cat = state.categories.find(c => c.id === catId);
+      if (!cat) return;
+      cat.pairs = cat.pairs.filter(p => p.id !== pairId);
+      state.checked = state.checked.filter(id => id !== pairId);
+      saveState();
+      renderConfigCats();
+      showToast('Par excluído', 'success');
+    });
+  }
+
+  // ============ Global event delegation ============
+  function setupEvents() {
+    document.getElementById('selectedOnly').addEventListener('change',e=>{selectedOnly=e.target.checked;renderChecklist();});
+    document.getElementById('view-relatorio').addEventListener('input',e=>{const fields={osNumber:'number',osEquipment:'equipment',osNotes:'notes'};if(fields[e.target.id]){state.draft[fields[e.target.id]]=e.target.value;saveState();document.getElementById('reportPreview').textContent=generateReportText();}});
+    document.getElementById('view-history').addEventListener('click',historyClick);
+    document.getElementById('view-history').addEventListener('input',e=>{if(e.target.id==='historySearch')renderHistoryList(e.target.value);});
+    // Toggle view
+    document.getElementById('toggleView').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-view]');
+      if (!btn) return;
+      setView(btn.dataset.view);
+    });
+
+    // Settings gear
+    document.getElementById('btnSettings').addEventListener('click', () => setView('config'));
+
+    // Search
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      renderChecklist();
+    });
+
+    // Checklist delegation
+    document.getElementById('view-checklist').addEventListener('click', (e) => {
+      const head = e.target.closest('[data-toggle-cat]');
+      if (head) { toggleAccordion(head.dataset.toggleCat); return; }
+    });
+    document.getElementById('view-checklist').addEventListener('change', (e) => {
+      if (e.target.matches('input[type=checkbox][data-pair-id]')) {
+        toggleCheck(e.target.dataset.pairId);
+      }
+    });
+
+    // Checklist toolbar (count + expand-all + clear-all) — fica no search-wrap, fora do view-checklist
+    const toolbar = document.getElementById('checklistToolbar');
+    if (toolbar && !toolbar.dataset.bound) {
+      toolbar.dataset.bound = '1';
+      toolbar.addEventListener('click', (e) => {
+        if (e.target.id === 'btnClearAllChecks') clearChecks();
+        else if (e.target.id === 'btnToggleAll') toggleAllAccordions();
+      });
+    }
+
+    // Relatório delegation
+    document.getElementById('view-relatorio').addEventListener('click', (e) => {
+      if (e.target.id === 'btnCopy') copyReport();
+      else if (e.target.id === 'btnDownload') downloadReport();
+      else if (e.target.id === 'btnClearChecks') clearChecks();else if(e.target.id==='btnShare')shareText(generateReportText());else if(e.target.id==='btnArchive')archiveReport();
+    });
+
+    // Config delegation
+    document.getElementById('view-config').addEventListener('click', (e) => {
+      // Toggle acordeão de categoria: clicar no cabeçalho abre/fecha,
+      // MAS clicar num botão de controle (data-action) não deve disparar o toggle.
+      const cfgHead = e.target.closest('[data-toggle-cfg-cat]');
+      const actionTarget = e.target.closest('[data-action], #btnAddCat, #btnBackFromConfig, #btnSaveFooter, #btnExport, #btnImport');
+      if (cfgHead && !actionTarget) {
+        toggleCfgAccordion(cfgHead.dataset.toggleCfgCat);
+        return;
+      }
+      if (!actionTarget) return;
+
+      if (actionTarget.id === 'btnBackFromConfig') { setView('checklist'); return; }
+      if (actionTarget.id === 'btnAddCat') { openCategoryModal(null); return; }
+      if (actionTarget.id === 'btnSaveFooter') {
+        state.footer = document.getElementById('cfgFooter').value;
+        saveState();
+        showToast('Rodapé salvo', 'success');
+        return;
+      }
+      if (actionTarget.id === 'btnExport') { exportData(); return; }
+      if (actionTarget.id === 'btnImport') { document.getElementById('importFile').click(); return; }
+
+      const action = actionTarget.dataset.action;
+      if (!action) return;
+
+      if (action === 'up-cat') moveCat(parseInt(actionTarget.dataset.idx), -1);
+      else if (action === 'down-cat') moveCat(parseInt(actionTarget.dataset.idx), 1);
+      else if (action === 'edit-cat') {
+        const cat = state.categories.find(c => c.id === actionTarget.dataset.id);
+        if (cat) openCategoryModal(cat);
+      }
+      else if (action === 'del-cat') deleteCategory(actionTarget.dataset.id);
+      else if (action === 'add-pair') openPairModal(actionTarget.dataset.catId, null);
+      else if (action === 'up-pair') movePair(actionTarget.dataset.catId, parseInt(actionTarget.dataset.idx), -1);
+      else if (action === 'down-pair') movePair(actionTarget.dataset.catId, parseInt(actionTarget.dataset.idx), 1);
+      else if (action === 'edit-pair') {
+        const cat = state.categories.find(c => c.id === actionTarget.dataset.catId);
+        const pair = cat && cat.pairs.find(p => p.id === actionTarget.dataset.id);
+        if (pair) openPairModal(cat.id, pair);
+      }
+      else if (action === 'del-pair') deletePair(actionTarget.dataset.catId, actionTarget.dataset.id);
+    });
+
+    // Import file change — handler robusto registrado UMA vez sobre o input persistente
+    const importFileInput = document.getElementById('importFile');
+    // Evitar duplicar listener caso setupEvents seja chamado mais de uma vez
+    if (!importFileInput.dataset.bound) {
+      importFileInput.dataset.bound = '1';
+      importFileInput.addEventListener('change', (e) => {
+        const f = e.target.files && e.target.files[0];
+        if (f) {
+          importData(f);
+        }
+        // Sempre resetar para permitir re-selecionar o mesmo arquivo
+        e.target.value = '';
+      });
+    }
+
+    // Modal backdrop click to close
+    document.getElementById('modalRoot').addEventListener('click', (e) => {
+      if (e.target.id === 'modalBackdrop') closeModal();
+    });
+
+    // Esc to close modal
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+  }
+
+  function safeDraft(d){d=d||{};return {number:String(d.number||''),equipment:String(d.equipment||''),notes:String(d.notes||'')};}
+  function safeHistory(h){return Array.isArray(h)?h.filter(x=>x&&typeof x.text==='string').map(x=>({id:uid(),number:String(x.number||''),equipment:String(x.equipment||''),date:String(x.date||''),text:x.text})):[];}
+  function validCatalog(d){return Array.isArray(d.categories)&&d.categories.every(c=>c&&typeof c.name==='string'&&Array.isArray(c.pairs)&&c.pairs.every(p=>p&&typeof p.problem==='string'&&typeof p.action==='string'));}
+  function archiveReport(){const text=generateReportText();if(!text)return;state.history.unshift({id:uid(),number:state.draft.number,equipment:state.draft.equipment,date:new Date().toISOString(),text});saveState();showToast('OS salva no histórico','success');}
+  function shareText(t){if(!t)return;if(window.Android)Android.shareText(t);else if(navigator.share)navigator.share({text:t}).catch(()=>{});else fallbackCopy(t);}
+  function renderHistory(){document.getElementById('view-history').innerHTML='<div class="config-section"><h3>Ordens salvas</h3><div class="form-group"><input type="search" id="historySearch" placeholder="Buscar OS, equipamento ou conteúdo"></div><div id="historyList"></div></div>';renderHistoryList('');}
+  function renderHistoryList(q){const list=state.history.filter(h=>normalize(h.number+' '+h.equipment+' '+h.text).includes(normalize(q)));document.getElementById('historyList').innerHTML=list.length?list.map(h=>'<div class="config-section"><strong>'+escapeHTML(h.number?'OS '+h.number:'OS sem número')+'</strong><p>'+escapeHTML(h.equipment)+'</p><p class="report-meta">'+escapeHTML(new Date(h.date).toLocaleString('pt-BR'))+'</p><div class="actions-row"><button class="btn btn-secondary btn-sm" data-history="view" data-id="'+h.id+'">Abrir</button><button class="btn btn-secondary btn-sm" data-history="share" data-id="'+h.id+'">Compartilhar</button><button class="btn btn-ghost btn-sm" data-history="delete" data-id="'+h.id+'">Excluir</button></div></div>').join(''):'<p>Nenhuma ordem encontrada.</p>';}
+  function historyClick(e){const b=e.target.closest('[data-history]');if(!b)return;const h=state.history.find(x=>x.id===b.dataset.id);if(!h)return;if(b.dataset.history==='share')shareText(h.text);if(b.dataset.history==='view'){openModal('<div class="modal"><h3>Relatório salvo</h3><div class="report-preview">'+escapeHTML(h.text)+'</div><div class="form-actions"><button class="btn btn-primary" id="historyCopy">Copiar</button><button class="btn btn-secondary" id="historyClose">Fechar</button></div></div>');document.getElementById('historyClose').onclick=closeModal;document.getElementById('historyCopy').onclick=()=>{if(window.Android)Android.copyText(h.text);else fallbackCopy(h.text);};}if(b.dataset.history==='delete')openConfirm('Excluir esta OS do histórico?',()=>{state.history=state.history.filter(x=>x.id!==h.id);saveState();renderHistory();});}
+  window.onAndroidBack=()=>{if(document.getElementById('modalRoot').innerHTML){closeModal();return true;}if(currentView!=='checklist'){setView('checklist');return true;}return false;};
+  // ============ Init ============
+  function init() {
+    loadState();
+    setupEvents();
+    // Default all accordions open
+    state.categories.forEach(c => { if (accordionOpen[c.id] === undefined) accordionOpen[c.id] = false; }); // default collapsed
+    setView('checklist');
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+</body>
+</html>
